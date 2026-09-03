@@ -1,6 +1,10 @@
 package com.example.nasstats
 
+import android.graphics.Color
 import android.os.Bundle
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -17,11 +21,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         textView = findViewById(R.id.textView)
-        //button = findViewById(R.id.sendButton)
-
-       // button.setOnClickListener {
-      //      sendMessage("Hello from Android")
-       // }
 
         startListening()
     }
@@ -37,7 +36,7 @@ class MainActivity : AppCompatActivity() {
                         textView.text = "Connecting..."
                     }
 
-                    val socket = Socket("nas", 12345)
+                    val socket = Socket("nas", 5000)
 
                     runOnUiThread {
                         textView.text = "Connected"
@@ -78,90 +77,111 @@ class MainActivity : AppCompatActivity() {
         }.start()
     }
 
-/*
-    private fun startListening() {
-        Thread {
-            try {
-                val socket = Socket("nas", 12345)
-
-                val reader = BufferedReader(
-                    InputStreamReader(socket.getInputStream())
-                )
-
-                while (true) {
-                    val line = reader.readLine() ?: break
-
-                    runOnUiThread {
-                        updateUI(line)
-                    }
-                }
-
-                socket.close()
-
-            } catch (e: Exception) {
-                e.printStackTrace()
-                runOnUiThread {
-                    textView.text = "Disconnected: ${e.message}"
-                }
-            }
-        }.start()
-    }
-
- */
 
     private fun updateUI(data: String) {
         val drives = data.split("|")
 
-        val formatted = StringBuilder()
+        val formatted = SpannableStringBuilder()
 
         for (drive in drives) {
             val parts = drive.split(":")
-
+            var myColor = 0xFF1DFFEC.toInt()
             if (parts.size == 3) {
-                formatted.append("${parts[0]} -> ${parts[1]} used, ${parts[2]} free\n")
+                when (parts[0]) {
+                    "3rdfront" -> {
+                        var start = formatted.length
+
+                        formatted.append("\n3rd Front: ${parts[1]}°f \n")
+                        formatted.setSpan(
+                            ForegroundColorSpan(myColor),
+                            start,
+                            start + "3rd Front:".length+1,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                        
+                        start = formatted.length
+                        myColor = 0xFF1DFFEC.toInt()
+                        formatted.append("Humidity: ${parts[2]}% \n")
+                        formatted.setSpan(
+                            ForegroundColorSpan(myColor),
+                            start,
+                            start + "Humidity:".length+1,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+
+                    }
+                    "CPUTEMP" -> {
+                        val start = formatted.length
+
+                        formatted.append("\ncpuTemp: ${parts[1]}°f \n")
+                        formatted.setSpan(
+                            ForegroundColorSpan(myColor),
+                            start,
+                            start + "cpuTemp".length+1,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                    }
+                    "TEMP" -> {
+                        val start = formatted.length
+                        formatted.append("Temp: ${parts[1]}°f  (Max: ${parts[2]}°f)\n")
+                        formatted.setSpan(
+                            ForegroundColorSpan(myColor),
+                            start,
+                            start + "Temp".length,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                    }
+                    "HUMIDITY" -> {
+                        val start = formatted.length
+                        val text = "Humidity: ${parts[1]}\n"
+                        formatted.append(text)
+                        formatted.setSpan(
+                            ForegroundColorSpan(myColor),
+                            start,
+                            start + "Humidity".length,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                    }
+                    "AMBIENTTEMP" -> {
+                        val start = formatted.length
+                        formatted.append("\nRoom Temp: ${parts[1]}°f \n")
+                        formatted.setSpan(
+                            ForegroundColorSpan(myColor),
+                            start,
+                            start + "Room Temp:".length,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                    }
+                    "MBIENTHUMIDITY" -> {
+                        val start = formatted.length
+                        val text = "Room Humidity: ${parts[1]}\n"
+                        formatted.append(text)
+                        formatted.setSpan(
+                            ForegroundColorSpan(myColor),
+                            start,
+                            start + "Room Humidity:".length,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                    }
+                    else -> {
+                        val start = formatted.length
+                        val drive = parts[0]
+                        formatted.append("$drive -> ${parts[1]} used, ${parts[2]} free\n")
+
+                        formatted.setSpan(
+                            ForegroundColorSpan(Color.YELLOW),
+                            start,
+                            start + drive.toString().length,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                    }
+                }
             } else {
                 formatted.append("${parts[0]} -> NOT MOUNTED\n")
             }
         }
-
-        textView.text = formatted.toString()
+        textView.text = formatted
     }
-/*
-    private fun sendMessage(message: String) {
-        Thread {
-            try {
-                val socket = Socket("nas", 12345)
-
-                val writer = BufferedWriter(
-                    OutputStreamWriter(socket.getOutputStream())
-                )
-                val reader = BufferedReader(
-                    InputStreamReader(socket.getInputStream())
-                )
-
-                // Send message
-                writer.write(message)
-                writer.newLine()
-                writer.flush()
-
-                // Receive response
-                val response = reader.readLine()
-
-                runOnUiThread {
-                    textView.text = "Server says: $response"
-                }
-
-                socket.close()
-
-            } catch (e: Exception) {
-                e.printStackTrace()
-                runOnUiThread {
-                    textView.text = "Error: ${e.message}"
-                }
-            }
-        }.start()
-    }
-    */
 
     override fun onDestroy() {
         super.onDestroy()
