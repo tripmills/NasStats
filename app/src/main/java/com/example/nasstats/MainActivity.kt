@@ -144,7 +144,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     "AMBIENTTEMP" -> {
                         val start = formatted.length
-                        formatted.append("\nRoom Temp: ${parts[1]}°f \n")
+                        formatted.append("\nRoom Temp: ${parts[1]}°f (Max: ${parts[2]}°f) \n")
                         formatted.setSpan(
                             ForegroundColorSpan(myColor),
                             start,
