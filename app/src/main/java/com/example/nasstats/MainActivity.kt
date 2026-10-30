@@ -11,6 +11,8 @@ import androidx.appcompat.app.AppCompatActivity
 import java.io.*
 import java.net.Socket
 
+data class TheRoom(val temp: Double, val humidity: Double)
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var textView: TextView
@@ -22,12 +24,14 @@ class MainActivity : AppCompatActivity() {
 
         textView = findViewById(R.id.textView)
 
+        val mutableUserList: MutableList<TheRoom> = mutableListOf()
+
+
         startListening()
     }
 
     @Volatile
     private var keepRunning = true
-
     private fun startListening() {
         Thread {
             while (keepRunning) {
