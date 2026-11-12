@@ -5,11 +5,13 @@ import android.os.Bundle
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import java.io.*
 import java.net.Socket
+
 
 data class TheRoom(val temp: Double, val humidity: Double)
 
@@ -40,7 +42,7 @@ class MainActivity : AppCompatActivity() {
                         textView.text = "Connecting..."
                     }
 
-                    val socket = Socket("nas", 5000)
+                    val socket = Socket("nas", 5010)
 
                     runOnUiThread {
                         textView.text = "Connected"
@@ -83,107 +85,113 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun updateUI(data: String) {
-        val drives = data.split("|")
+        //val drives = data.split("|")
+
+        val incomingstring = data.split("|")
 
         val formatted = SpannableStringBuilder()
+        formatted.append("Temp: ${incomingstring[1]}°f  (Max: ${incomingstring[2]}°f)\n")
+        Log.d("incomingstring",incomingstring.toString())
 
-        for (drive in drives) {
-            val parts = drive.split(":")
-            var myColor = 0xFF1DFFEC.toInt()
-            if (parts.size == 3) {
-                when (parts[0]) {
-                    "3rdfront" -> {
-                        var start = formatted.length
+        //val parts = incomingstring.split(":")
 
-                        formatted.append("\n3rd Front: ${parts[1]}°f \n")
-                        formatted.setSpan(
-                            ForegroundColorSpan(myColor),
-                            start,
-                            start + "3rd Front:".length+1,
-                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-                        
-                        start = formatted.length
-                        myColor = 0xFF1DFFEC.toInt()
-                        formatted.append("Humidity: ${parts[2]}% \n")
-                        formatted.setSpan(
-                            ForegroundColorSpan(myColor),
-                            start,
-                            start + "Humidity:".length+1,
-                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-
-                    }
-                    "CPUTEMP" -> {
-                        val start = formatted.length
-
-                        formatted.append("\ncpuTemp: ${parts[1]}°f \n")
-                        formatted.setSpan(
-                            ForegroundColorSpan(myColor),
-                            start,
-                            start + "cpuTemp".length+1,
-                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-                    }
-                    "TEMP" -> {
-                        val start = formatted.length
-                        formatted.append("Temp: ${parts[1]}°f  (Max: ${parts[2]}°f)\n")
-                        formatted.setSpan(
-                            ForegroundColorSpan(myColor),
-                            start,
-                            start + "Temp".length,
-                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-                    }
-                    "HUMIDITY" -> {
-                        val start = formatted.length
-                        val text = "Humidity: ${parts[1]}\n"
-                        formatted.append(text)
-                        formatted.setSpan(
-                            ForegroundColorSpan(myColor),
-                            start,
-                            start + "Humidity".length,
-                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-                    }
-                    "AMBIENTTEMP" -> {
-                        val start = formatted.length
-                        formatted.append("\nRoom Temp: ${parts[1]}°f (Max: ${parts[2]}°f) \n")
-                        formatted.setSpan(
-                            ForegroundColorSpan(myColor),
-                            start,
-                            start + "Room Temp:".length,
-                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-                    }
-                    "MBIENTHUMIDITY" -> {
-                        val start = formatted.length
-                        val text = "Room Humidity: ${parts[1]}\n"
-                        formatted.append(text)
-                        formatted.setSpan(
-                            ForegroundColorSpan(myColor),
-                            start,
-                            start + "Room Humidity:".length,
-                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-                    }
-                    else -> {
-                        val start = formatted.length
-                        val drive = parts[0]
-                        formatted.append("$drive -> ${parts[1]} used, ${parts[2]} free\n")
-
-                        formatted.setSpan(
-                            ForegroundColorSpan(Color.YELLOW),
-                            start,
-                            start + drive.toString().length,
-                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-                    }
-                }
-            } else {
-                formatted.append("${parts[0]} -> NOT MOUNTED\n")
-            }
-        }
+//        for (drive in drives) {
+//            val parts = drive.split(":")
+//            var myColor = 0xFF1DFFEC.toInt()
+//            if (parts.size == 3) {
+//                when (parts[0]) {
+//                    "3rdfront" -> {
+//                        var start = formatted.length
+//
+//                        formatted.append("\n3rd Front: ${parts[1]}°f \n")
+//                        formatted.setSpan(
+//                            ForegroundColorSpan(myColor),
+//                            start,
+//                            start + "3rd Front:".length+1,
+//                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+//                        )
+//
+//                        start = formatted.length
+//                        myColor = 0xFF1DFFEC.toInt()
+//                        formatted.append("Humidity: ${parts[2]}% \n")
+//                        formatted.setSpan(
+//                            ForegroundColorSpan(myColor),
+//                            start,
+//                            start + "Humidity:".length+1,
+//                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+//                        )
+//
+//                    }
+//                    "CPUTEMP" -> {
+//                        val start = formatted.length
+//
+//                        formatted.append("\ncpuTemp: ${parts[1]}°f \n")
+//                        formatted.setSpan(
+//                            ForegroundColorSpan(myColor),
+//                            start,
+//                            start + "cpuTemp".length+1,
+//                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+//                        )
+//                    }
+//                    "TEMP" -> {
+//                        val start = formatted.length
+//                        formatted.append("Temp: ${parts[1]}°f  (Max: ${parts[2]}°f)\n")
+//                        formatted.setSpan(
+//                            ForegroundColorSpan(myColor),
+//                            start,
+//                            start + "Temp".length,
+//                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+//                        )
+//                    }
+//                    "HUMIDITY" -> {
+//                        val start = formatted.length
+//                        val text = "Humidity: ${parts[1]}\n"
+//                        formatted.append(text)
+//                        formatted.setSpan(
+//                            ForegroundColorSpan(myColor),
+//                            start,
+//                            start + "Humidity".length,
+//                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+//                        )
+//                    }
+//                    "AMBIENTTEMP" -> {
+//                        val start = formatted.length
+//                        formatted.append("\nRoom Temp: ${parts[1]}°f (Max: ${parts[2]}°f) \n")
+//                        formatted.setSpan(
+//                            ForegroundColorSpan(myColor),
+//                            start,
+//                            start + "Room Temp:".length,
+//                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+//                        )
+//                    }
+//                    "MBIENTHUMIDITY" -> {
+//                        val start = formatted.length
+//                        val text = "Room Humidity: ${parts[1]}\n"
+//                        formatted.append(text)
+//                        formatted.setSpan(
+//                            ForegroundColorSpan(myColor),
+//                            start,
+//                            start + "Room Humidity:".length,
+//                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+//                        )
+//                    }
+//                    else -> {
+//                        val start = formatted.length
+//                        val drive = parts[0]
+//                        formatted.append("$drive -> ${parts[1]} used, ${parts[2]} free\n")
+//
+//                        formatted.setSpan(
+//                            ForegroundColorSpan(Color.YELLOW),
+//                            start,
+//                            start + drive.toString().length,
+//                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+//                        )
+//                    }
+//                }
+//            } else {
+//                formatted.append("${parts[0]} -> NOT MOUNTED\n")
+//            }
+//        }
         textView.text = formatted
     }
 
