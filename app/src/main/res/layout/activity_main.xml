@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:id="@+id/sensor_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:gravity="top"
     android:orientation="vertical"
     android:padding="16dp"
@@ -11,21 +12,36 @@
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         android:adjustViewBounds="true"
-        android:scaleType="fitCenter"
+        android:scaleType="fitStart"
         android:background="@color/black"
         app:srcCompat="@drawable/nas" />
 
-    <TextView
-        android:id="@+id/textView"
+    <ScrollView
+        android:id="@+id/sensor_scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-        android:text="Waiting for response..."
-        android:textSize="20sp"
-        android:textColor="@color/white"
-        android:background="@color/black"/>
+        <!-- Single child container required by ScrollView -->
+        <LinearLayout
+            android:id="@+id/sensor_list_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:text="Waiting for response..."
+                android:textSize="20sp"
+                android:textColor="@color/white"
+                android:background="@color/black"/>
+
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>
